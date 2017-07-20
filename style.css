@@ -19,7 +19,7 @@ a:hover {
     color: #666666;
 }
 
-#key {
+#sidebar {
     padding: 20px;
 }
 
@@ -31,12 +31,18 @@ a:hover {
     padding: 10px 0px;
 }
 
+#footer {
+    position: absolute;
+    color: #aaaaaa;
+    right: 20px;
+    bottom: 20px;
+}
+
 .legend-item {
-    font-size: 20px;
+    font-size: 18px;
     margin: 16px 0px;
 }
 
 .legend-mouseover {
-    font-weight: bold;
-    margin: 24px 0px;
+    font-size: 26px;
 }
