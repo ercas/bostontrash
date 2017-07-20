@@ -1,0 +1,42 @@
+body {
+    font-family: sans-serif;
+    color: #444444;
+    margin: 16px;
+}
+
+table {
+    height: 100%;
+    width: 100%;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: bold;
+}
+
+a:hover {
+    color: #666666;
+}
+
+#key {
+    padding: 20px;
+}
+
+#map {
+    width: 66%;
+}
+
+#description {
+    padding: 10px 0px;
+}
+
+.legend-item {
+    font-size: 20px;
+    margin: 16px 0px;
+}
+
+.legend-mouseover {
+    font-weight: bold;
+    margin: 24px 0px;
+}
