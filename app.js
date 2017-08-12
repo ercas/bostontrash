@@ -78,10 +78,6 @@ var geojson = L.geoJSON(geo, {
                 var trashDay = e.target.feature.properties.TRASHDAY;
 
                 select(trashDay);
-
-                if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
-                    layer.bringToFront();
-                }
             },
             mouseout: function(e) {
                 var trashDay = e.target.feature.properties.TRASHDAY;
@@ -99,11 +95,15 @@ function select(trashDay) {
     var layers = geojson.getLayers();
     for (var i = 0; i < layers.length; i++) {
         var poly = layers[i];
+
         if (poly.feature.properties.TRASHDAY == trashDay) {
             poly.setStyle({
                 color: trashDays[trashDay].color,
                 fillOpacity: 0.7
             });
+            if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
+                poly.bringToFront();
+            }
         }
     }
 
