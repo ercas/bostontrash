@@ -1,6 +1,6 @@
 var map = L.map("map").setView([42.3235, -71.0865], 12);
 var geojson;
-var trashdays = {
+var trashDays = {
     "M": {
         "color": "#a56b7a",
         "label": "monday"
@@ -18,7 +18,7 @@ var trashdays = {
         "label": "thursday"
     },
     "F": {
-        "color": "#be805b",
+        "color": "#be6a5b",
         "label": "friday"
     },
 
@@ -36,45 +36,57 @@ var trashdays = {
     },
 }
 
+// TODO: figure out a way to show the best area in a visually appealing way
+var daysOfWeek = [
+    "sunday", "monday", "tuesday", "wednesday", "thursday", "friday",
+    "saturday"
+];
+var today = new Date().getDay();
+var bestArea = (today + 1) % 7
+var nextBestArea = (today + 2) % 7
+for (var trashDay in trashDays) {
+    bestAreaLabel = daysOfWeek[bestArea];
+    if (trashDays[trashDay].label.includes(bestAreaLabel)) {
+        trashDays[trashDay].isBestArea = true;
+    }
+    nextBestAreaLabel = daysOfWeek[nextBestArea];
+    if (trashDays[trashDay].label.includes(nextBestAreaLabel)) {
+        trashDays[trashDay].isNextBestArea = true;
+    }
+}
+
 L.tileLayer("http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg", {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.'
 }).addTo(map);
 
-geojson = L.geoJSON(geo, {
+var geojson = L.geoJSON(geo, {
     style: function(feature) {
+        var trashDayInfo = trashDays[feature.properties.TRASHDAY];
+        //console.log(trashDayInfo.label, trashDayInfo.isBestArea);
         return {
-            fillColor: trashdays[feature.properties.TRASHDAY].color,
+            fillColor: trashDayInfo.color,
             weight: 2,
             opacity: 1,
-            color: "lightgrey",
-            dashArray: "4",
-            fillOpacity: 0.7
+            color: "#ffffff",
+            dashArray: "3",
+            fillOpacity: 0.6
         };
     },
     onEachFeature: function(feature, layer) {
         layer.on({
             mouseover: function(e) {
-                var trashday = e.target.feature.properties.TRASHDAY;
+                var trashDay = e.target.feature.properties.TRASHDAY;
 
-                e.target.setStyle({
-                    color: trashdays[trashday].color
-                });
+                select(trashDay);
 
                 if (!L.Browser.ie && !L.Browser.opera && !L.Browser.edge) {
                     layer.bringToFront();
                 }
-
-                document.getElementById(trashday).setAttribute(
-                    "class", "legend-item legend-mouseover"
-                );
             },
             mouseout: function(e) {
-                geojson.resetStyle(e.target);
+                var trashDay = e.target.feature.properties.TRASHDAY;
 
-                document.getElementById(e.target.feature.properties.TRASHDAY)
-                        .setAttribute(
-                            "class", "legend-item"
-                        );
+                deselect(trashDay);
             },
             click: function(e) {
                 console.log(e.target);
@@ -82,13 +94,55 @@ geojson = L.geoJSON(geo, {
         })
     }
 });
-geojson.addTo(map);
 
-for (var key in trashdays) {
-    var newDiv = document.createElement("div");
-    newDiv.innerHTML = "█▎ " + trashdays[key].label;
-    newDiv.setAttribute("style", "color: " + trashdays[key].color);
-    newDiv.setAttribute("class", "legend-item");
-    newDiv.setAttribute("id", key);
-    document.getElementById("key").appendChild(newDiv);
+function select(trashDay) {
+    var layers = geojson.getLayers();
+    for (var i = 0; i < layers.length; i++) {
+        var poly = layers[i];
+        if (poly.feature.properties.TRASHDAY == trashDay) {
+            poly.setStyle({
+                color: trashDays[trashDay].color,
+                fillOpacity: 0.7
+            });
+        }
+    }
+
+    document.getElementById(trashDay).setAttribute(
+        "class", "legend-item legend-mouseover"
+    );
 }
+
+function deselect(trashDay) {
+    var layers = geojson.getLayers();
+    for (var i = 0; i < layers.length; i++) {
+        var poly = layers[i];
+        if (poly.feature.properties.TRASHDAY == trashDay) {
+            geojson.resetStyle(poly);
+        }
+    }
+
+    document.getElementById(trashDay).setAttribute(
+        "class", "legend-item"
+    );
+}
+
+for (var trashDay in trashDays) {
+    var newDiv = document.createElement("div");
+
+    newDiv.innerHTML = "█▎ " + trashDays[trashDay].label;
+    newDiv.setAttribute("style", "color: " + trashDays[trashDay].color);
+    newDiv.setAttribute("class", "legend-item");
+    newDiv.setAttribute("id", trashDay);
+
+    document.getElementById("key").appendChild(newDiv);
+
+    (function(trashDay) {
+        newDiv.addEventListener("mouseover", function(e) {
+            select(trashDay);
+        });
+        newDiv.addEventListener("mouseout", function(e) {
+            deselect(trashDay);
+        });
+    })(trashDay);
+}
+geojson.addTo(map);
