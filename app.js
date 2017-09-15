@@ -36,7 +36,6 @@ var trashDays = {
     },
 }
 
-// TODO: figure out a way to show the best area in a visually appealing way
 var daysOfWeek = [
     "sunday", "monday", "tuesday", "wednesday", "thursday", "friday",
     "saturday"
@@ -59,15 +58,25 @@ L.tileLayer("http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg", {
     attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>.'
 }).addTo(map);
 
+function borderColor(trashDayLabel) {
+        if (trashDayLabel.includes(daysOfWeek[bestArea])) {
+            return "#019f00";
+        } else if (trashDayLabel.includes(daysOfWeek[nextBestArea])) {
+            return "#58c258";
+        } else {
+            return "#ffffff";
+        }
+}
+
 var geojson = L.geoJSON(geo, {
     style: function(feature) {
         var trashDayInfo = trashDays[feature.properties.TRASHDAY];
-        //console.log(trashDayInfo.label, trashDayInfo.isBestArea);
+
         return {
             fillColor: trashDayInfo.color,
             weight: 2,
             opacity: 1,
-            color: "#ffffff",
+            color: borderColor(trashDayInfo.label),
             dashArray: "3",
             fillOpacity: 0.6
         };
